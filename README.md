@@ -10,3 +10,4 @@ Hardware used :
 Library used :
 1) PubSubClient : https://github.com/knolleary/pubsubclient
 
+As far as the MQTT broker is concerned, initially, i used HiveMQ MQTT public broker, but since it always up and down, i decided to change to another MQTT public broker, ie Dioty. You just need to register an account there (http://www.dioty.co) and follow my example for topic creation.
