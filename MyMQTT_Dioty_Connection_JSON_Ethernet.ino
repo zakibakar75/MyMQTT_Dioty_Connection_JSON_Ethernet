@@ -48,7 +48,7 @@ unsigned long lowpulseoccupancy = 0;
 float ratio = 0;
 long concentrationPM25 = 0;
 long concentrationPM10 = 0;
-int temp=28; //external temperature, if you can replace this with a DHT11 or better 
+int temperature=28; //external temperature, if you can replace this with a DHT11 or better 
 long ppmv;
 /* end for Dust Sensor */
 
@@ -123,7 +123,7 @@ void reconnect() {
   while (!mqttClient.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
-    if (mqttClient.connect(NULL,"zaki.bm@gmail.com","aa3ca97e")) {
+    if (mqttClient.connect(NULL,"zaki.bm@gmail.com","yourdiotypassword")) {
       Serial.println("connected");
       // Once connected, publish an announcement...
       mqttClient.publish("/zaki.bm@gmail.com/1234", "hello world");
@@ -139,6 +139,38 @@ void reconnect() {
     }
   }
 }
+
+long getPM(int DUST_SENSOR_DIGITAL_PIN) {
+
+  starttime = millis();
+
+  while (1) {
+  
+    duration = pulseIn(DUST_SENSOR_DIGITAL_PIN, LOW);
+    lowpulseoccupancy += duration;
+    endtime = millis();
+    
+    if ((endtime-starttime) > sampletime_ms)
+    {
+    ratio = (lowpulseoccupancy-endtime+starttime)/(sampletime_ms*10.0);  // Integer percentage 0=>100
+                long concentration = 1.1*pow(ratio,3)-3.8*pow(ratio,2)+520*ratio+0.62; // using spec sheet curve
+    Serial.print("lowpulseoccupancy:");
+    Serial.print(lowpulseoccupancy);
+    Serial.print("\n");
+    Serial.print("ratio:");
+    Serial.print(ratio);
+    Serial.print("\n");
+    Serial.print("PPDNS42:");
+    Serial.println(concentration);
+    Serial.print("\n");
+    
+    lowpulseoccupancy = 0;
+    return(concentration);    
+    }
+  }  
+}
+
+
 
 void loop() {
 
@@ -199,49 +231,7 @@ void loop() {
       mqttClient.publish("/zaki.bm@gmail.com/1234", msg);
      
       /******* end for Dust Sensor *********/
-  }
-  }
-
-  
 }
 
 
-float conversion10(long concentrationPM10) {
-  double pi = 3.14159;
-  double density = 1.65 * pow (10, 12);
-  double r10 = 0.44 * pow (10, -6);
-  double vol10 = (4/3) * pi * pow (r10, 3);
-  double mass10 = density * vol10;
-  double K = 3531.5;
-  return (concentrationPM10) * K * mass10;
-}
 
-long getPM(int DUST_SENSOR_DIGITAL_PIN) {
-
-  starttime = millis();
-
-  while (1) {
-  
-    duration = pulseIn(DUST_SENSOR_DIGITAL_PIN, LOW);
-    lowpulseoccupancy += duration;
-    endtime = millis();
-    
-    if ((endtime-starttime) > sampletime_ms)
-    {
-    ratio = (lowpulseoccupancy-endtime+starttime)/(sampletime_ms*10.0);  // Integer percentage 0=>100
-                long concentration = 1.1*pow(ratio,3)-3.8*pow(ratio,2)+520*ratio+0.62; // using spec sheet curve
-    Serial.print("lowpulseoccupancy:");
-    Serial.print(lowpulseoccupancy);
-    Serial.print("\n");
-    Serial.print("ratio:");
-    Serial.print(ratio);
-    Serial.print("\n");
-    Serial.print("PPDNS42:");
-    Serial.println(concentration);
-    Serial.print("\n");
-    
-    lowpulseoccupancy = 0;
-    return(concentration);    
-    }
-  }  
-}
