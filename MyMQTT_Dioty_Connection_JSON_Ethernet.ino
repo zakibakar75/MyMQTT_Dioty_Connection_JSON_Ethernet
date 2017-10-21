@@ -191,7 +191,7 @@ void loop() {
       Serial.print("\n");
       //ppmv=mg/m3 * (0.08205*Tmp)/Molecular_mass
       //0.08205   = Universal gas constant in atm·m3/(kmol·K)
-      ppmv=(concentrationPM10*0.0283168/100/1000) *  (0.08205*temp)/0.01;
+      ppmv=(concentrationPM10*0.0283168/100/1000) *  (0.08205*temperature)/0.01;
   
       if ((ceil(concentrationPM10) != lastDUSTPM10)&&((long)concentrationPM10>0)) 
       {
